@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="workspace">
+                <div class="workspace-icon">T</div>
+                <span class="workspace-name">My Tasks</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-item active" onclick="filterByStatus('ALL', this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                All Tasks
+                <span class="nav-count" id="navAll">0</span>
+            </div>
+            <div class="nav-item" onclick="filterByStatus('PENDING', this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                In Progress
+                <span class="nav-count" id="navPending">0</span>
+            </div>
+            <div class="nav-item" onclick="filterByStatus('COMPLETED', this)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Completed
+                <span class="nav-count" id="navCompleted">0</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-section-label">Priority</div>
+        <nav class="sidebar-nav">
+            <div class="nav-item" onclick="filterByPriority('HIGH', this)">
+                <span class="dot dot-high"></span>High
+            </div>
+            <div class="nav-item" onclick="filterByPriority('MEDIUM', this)">
+                <span class="dot dot-medium"></span>Medium
+            </div>
+            <div class="nav-item" onclick="filterByPriority('LOW', this)">
+                <span class="dot dot-low"></span>Low
+            </div>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- TOP BAR -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h1 class="page-title">All Tasks</h1>
+            </div>
+            <div class="topbar-right">
+                <div class="search-wrap">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="searchInput" placeholder="Search tasks..." oninput="searchTasks(this.value)" />
+                </div>
+                <button class="btn-new" onclick="openAddPanel()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    New Task
+                </button>
+            </div>
+        </div>
+
+        <!-- STATS ROW -->
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-value" id="totalCount">0</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat-value amber" id="pendingCount">0</span>
+                <span class="stat-label">Pending</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat">
+                <span class="stat-value green" id="completedCount">0</span>
+                <span class="stat-label">Done</span>
+            </div>
+        </div>
+
+        <!-- TASK TABLE HEADER -->
+        <div class="table-header">
+            <span class="col-check"></span>
+            <span class="col-title">Title</span>
+            <span class="col-priority">Priority</span>
+            <span class="col-due">Due Date</span>
+            <span class="col-status">Status</span>
+            <span class="col-actions"></span>
+        </div>
+
+        <!-- TASK LIST -->
+        <div id="taskList" class="task-list">
+            <div class="state-loading">
+                <div class="spinner"></div>
+                <span>Loading...</span>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay hidden" id="overlay" onclick="closePanels()"></div>
+
+<!-- ADD PANEL -->
+<div class="panel hidden" id="addPanel">
+    <div class="panel-header">
+        <h3>New Task</h3>
+        <button class="btn-close" onclick="closePanels()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+    </div>
+    <div class="panel-body">
+        <div class="field">
+            <label>Title <span class="required">*</span></label>
+            <input type="text" id="title" placeholder="Task name" />
+        </div>
+        <div class="field">
+            <label>Description</label>
+            <textarea id="description" placeholder="Add a note..." rows="3"></textarea>
+        </div>
+        <div class="field-row">
+            <div class="field">
+                <label>Priority</label>
+                <select id="priority">
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM" selected>Medium</option>
+                    <option value="HIGH">High</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Due Date</label>
+                <input type="date" id="dueDate" />
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button class="btn-cancel" onclick="closePanels()">Cancel</button>
+        <button class="btn-save" onclick="createTask()">Create Task</button>
+    </div>
+</div>
+
+<!-- EDIT PANEL -->
+<div class="panel hidden" id="editPanel">
+    <div class="panel-header">
+        <h3>Edit Task</h3>
+        <button class="btn-close" onclick="closePanels()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+    </div>
+    <div class="panel-body">
+        <input type="hidden" id="editId" />
+        <div class="field">
+            <label>Title <span class="required">*</span></label>
+            <input type="text" id="editTitle" placeholder="Task name" />
+        </div>
+        <div class="field">
+            <label>Description</label>
+            <textarea id="editDescription" placeholder="Add a note..." rows="3"></textarea>
+        </div>
+        <div class="field-row">
+            <div class="field">
+                <label>Priority</label>
+                <select id="editPriority">
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Due Date</label>
+                <input type="date" id="editDueDate" />
+            </div>
+        </div>
+        <div class="field">
+            <label>Status</label>
+            <select id="editStatus">
+                <option value="PENDING">Pending</option>
+                <option value="COMPLETED">Completed</option>
+            </select>
+        </div>
+    </div>
+    <div class="panel-footer">
+        <button class="btn-cancel" onclick="closePanels()">Cancel</button>
+        <button class="btn-save" onclick="updateTask()">Save Changes</button>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
